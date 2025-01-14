@@ -72,6 +72,8 @@ class GridDrawer(TracksDrawer):
                 color = self.poster.colors.get("special2") or self.poster.colors.get(
                     "special"
                 )
+            if tr.workout_type == 1 or  tr.workout_type == 11:
+                color = self.poster.colors.get("race")
             polyline = dr.polyline(
                 points=line,
                 stroke=color,

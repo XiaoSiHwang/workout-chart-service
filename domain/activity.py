@@ -9,3 +9,4 @@ class Activity(BaseModel):
   startDateLocal: Optional[str] = None
   elapsedTime: Optional[int] = 0
   distance: Optional[float] = 0
+  workoutType: Optional[int] = None

@@ -66,8 +66,10 @@ class Track:
     self.type = "Run"
     self.subtype = None  # for fit file
     self.device = ""
+    self.workout_type = None
 
-  def load_from_activity(self, activity):
+
+  def load_from_activity(self, activity: Activity):
     # use strava as file name
     self.file_names = [str(activity.activityName)]
     start_time = datetime.datetime.strptime(
@@ -82,6 +84,8 @@ class Track:
         summary_polyline = activity.polyline
     polyline_data = polyline.decode(summary_polyline) if summary_polyline else []
     self.polylines = [[s2.LatLng.from_degrees(p[0], p[1]) for p in polyline_data]]
+    self.workout_type = activity.workoutType
+
   
   def bbox(self):
         """Compute the smallest rectangle that contains the entire track (border box)."""

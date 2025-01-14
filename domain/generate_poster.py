@@ -20,4 +20,5 @@ class GeneratePoster(BaseModel):
   specialDistance2:  Optional[float] = 0.0
   minDistance: Optional[float] = 0.0
   fileType: Optional[str] = "png"
+  raceColor: Optional[str] = "#ef5350"
   activitys: Union[List[Activity], None] = None

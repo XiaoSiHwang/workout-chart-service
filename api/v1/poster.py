@@ -32,6 +32,7 @@ def read_root(generate_poster: GeneratePoster):
             "special": generate_poster.specialColor,
             "special2":generate_poster.specialColor2,
             "text": generate_poster.textColor,
+            "race": generate_poster.raceColor,
         }
     p.special_distance = {"special_distance": generate_poster.specialDistance, "special_distance2": generate_poster.specialDistance2}
     p.athlete = generate_poster.athlete

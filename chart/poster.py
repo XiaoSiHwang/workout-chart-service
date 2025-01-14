@@ -51,6 +51,7 @@ class Poster:
             "text": "#FFFFFF",
             "special": "#FFFF00",
             "track": "#4DD2FF",
+            "race": "#ef5350"
         }
         self.special_distance = {"special_distance": 10, "special_distance2": 20}
         self.width = 200
@@ -213,6 +214,19 @@ class Poster:
                 style=small_value_style,
             )
         )
+
+        ## Race Color
+        d.add(d.rect((65, self.height - 9), (2.6, 2.6), fill=self.colors["race"]))
+        
+        d.add(
+            d.text(
+                "Race",
+                insert=(70, self.height - 6.5),
+                fill=text_color,
+                style=small_value_style,
+            )
+        )
+
 
         d.add(
             d.text(
