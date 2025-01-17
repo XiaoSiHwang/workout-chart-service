@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 
 from utils.export_file_utils import export
 from chart.track import Track
@@ -11,18 +11,21 @@ from strategy.drawer import (
    grid_drawer_strategy,
    drawer_strategy_context
 )
+from logger.log import logger
 
 router = APIRouter()
 
-@router.post("/v1/poster")
+@router.post("/v1/poster", summary='运动绘图',description='运动绘图',tags=['V1运动绘图'])
 def read_root(generate_poster: GeneratePoster):
     p = poster.Poster()
     tracks = []
     for activity in generate_poster.activitys:
       t = Track()
-      t.load_from_activity(activity)
-      tracks.append(t)
-
+      if t.load_from_activity(activity, generate_poster.type) is not None:
+        tracks.append(t)
+    if len(tracks) == 0:
+      logger.error("[V1运动绘图]-运动绘图为空无法绘图！！")
+      return  JSONResponse(status_code=500, content={"message": "drawer tracks is empty!"})
     p.set_tracks(tracks)
     p.title =generate_poster.title
     p.colors = {
@@ -43,6 +46,5 @@ def read_root(generate_poster: GeneratePoster):
     
     context = drawer_strategy_context.DrawerStrategyContext(drawer_type[generate_poster.type])
     output = context.draw(poster=p)
-    # chart_file = open(output, mode="rb")
     chart_file = export(generate_poster.fileType, output)
     return StreamingResponse(chart_file)

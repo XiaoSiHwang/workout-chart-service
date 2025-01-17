@@ -10,6 +10,10 @@ def export(file_type, svg_file_path):
   if file_type == "svg":
     output_file = svg_file_path
   elif file_type == "png":
+    # 判断文件夹是否存在
+    if not os.path.exists("assets/png"):
+        # 如果文件夹不存在，创建文件夹
+        os.makedirs("assets/png")
     timestamp = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     unique_id = str(uuid.uuid4())
     output_file = f"assets/png/{timestamp}-{unique_id}.png"

@@ -23,6 +23,7 @@ from tcxreader.tcxreader import TCXReader
 from .exceptions import TrackLoadError
 from .utils import parse_datetime_to_local
 from domain.activity import Activity
+from logger.log import logger
 
 start_point = namedtuple("start_point", "lat lon")
 run_map = namedtuple("polyline", "summary_polyline")
@@ -69,7 +70,8 @@ class Track:
     self.workout_type = None
 
 
-  def load_from_activity(self, activity: Activity):
+  def load_from_activity(self, activity: Activity, poster_type: str):
+    logger.debug(f"[Track初始化]-初始化运动，运动信息: 运动名称:{activity.activityName}, 运动类型:{activity.type}, 运动距离:{activity.distance}")
     # use strava as file name
     self.file_names = [str(activity.activityName)]
     start_time = datetime.datetime.strptime(
@@ -78,13 +80,11 @@ class Track:
     self.start_time_local = start_time
     self.end_time = start_time + datetime.timedelta(seconds=activity.elapsedTime)
     self.length = float(activity.distance)
-    if IGNORE_BEFORE_SAVING:
-        summary_polyline = filter_out(activity.polyline)
-    else:
-        summary_polyline = activity.polyline
-    polyline_data = polyline.decode(summary_polyline) if summary_polyline else []
-    self.polylines = [[s2.LatLng.from_degrees(p[0], p[1]) for p in polyline_data]]
     self.workout_type = activity.workoutType
+    if(poster_type == "grid"):
+      if not self.handlePolyline(activity=activity):
+         return None
+    return self
 
   
   def bbox(self):
@@ -94,3 +94,27 @@ class Track:
             for latlng in line:
                 bbox = bbox.union(s2.LatLngRect.from_point(latlng.normalized()))
         return bbox
+
+  def handlePolyline(self, activity: Activity):
+    ##TODO
+    ## 忽略起始位置 结束位置 
+    # if IGNORE_BEFORE_SAVING:
+    #     summary_polyline = filter_out(activity.polyline)
+    # else:
+    #     summary_polyline = activity.polyline
+    summary_polyline = activity.polyline
+    flag = True
+    if summary_polyline:
+        try:
+            polyline_data = polyline.decode(summary_polyline)
+            if not polyline_data or len(polyline_data) < 2:
+                logger.error(f"[Track初始化]-无效的折线图：解码后的坐标点不足，运动名称:{activity.activityName}, 运动类型:{activity.type}")
+                flag = False
+            self.polylines = [[s2.LatLng.from_degrees(p[0], p[1]) for p in polyline_data]]
+        except Exception as e:
+            logger.error(f"[Track初始化]-传入折线图为非法折线图，运动名称:{activity.activityName}, 运动类型:{activity.type}，异常原因: {e}")
+            flag = False
+        return flag
+    else:
+        logger.warning(f"[Track初始化]-无效的折线图：未提供折线字符串，运动名称:{activity.activityName}, 运动类型:{activity.type}")   
+        return False
