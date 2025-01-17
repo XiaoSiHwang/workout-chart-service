@@ -9,5 +9,5 @@ app = FastAPI(title="workout-chart-service",
 app.include_router(poster.router)
 
 
-if __name__ == '__main__':
-    uvicorn.run('main:app')
+# if __name__ == '__main__':
+#     uvicorn.run('main:app')
